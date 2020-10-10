@@ -21,8 +21,10 @@ generator define follow {thefile} {
     }
 }
 
-# Example use
-set logfile [open access-log]
-generator foreach line [follow $logfile] {
-    puts $line
+if {[string match *follow.tcl $argv0]} {
+    # Example use
+    set logfile [open access-log]
+    generator foreach line [follow $logfile] {
+        puts $line
+    }
 }

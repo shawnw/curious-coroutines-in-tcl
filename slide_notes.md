@@ -61,3 +61,7 @@ the generator to get new values.
 See `follow.tcl` for the tcl code. David's original log file
 simulator, `logsim.py`, is included with minimal changes to make it
 run under Python 3.
+
+#### Slide 21 - A Pipeline Example
+
+See `pipeline.tcl` for the tcl code.
