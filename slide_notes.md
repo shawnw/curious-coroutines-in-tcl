@@ -55,3 +55,9 @@ your own benchmarks to get more accurate numbers for your systems!
 See `countdown.tcl` for the tcl code. `generator foreach`, much like
 Python's `in`, hides all the details about having to repeatedly invoke
 the generator to get new values.
+
+#### Slide 20 - A Practical Example
+
+See `follow.tcl` for the tcl code. David's original log file
+simulator, `logsim.py`, is included with minimal changes to make it
+run under Python 3.
