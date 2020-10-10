@@ -48,3 +48,10 @@ direct coroutines, like telling when they exit.
 I'm using Ubuntu 18.04 on a dinky old Chromebook for most stuff. Run
 your own benchmarks to get more accurate numbers for your systems!
 
+### Part 1
+
+#### Slides 16-19 - Generators
+
+See `countdown.tcl` for the tcl code. `generator foreach`, much like
+Python's `in`, hides all the details about having to repeatedly invoke
+the generator to get new values.
