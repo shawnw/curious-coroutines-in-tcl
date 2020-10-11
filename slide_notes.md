@@ -50,7 +50,7 @@ your own benchmarks to get more accurate numbers for your systems!
 
 ### Part 1
 
-#### Slides 16-19 - Generators
+#### Slides 16 through 19 - Generators
 
 See `countdown.tcl` for the tcl code. `generator foreach`, much like
 Python's `in`, hides all the details about having to repeatedly invoke
@@ -96,3 +96,17 @@ aren't going to be straightforward translations. On hold for now.
 ### Part 7
 
 Substitute `tclosN.tcl` for `pyosN.py`.
+
+#### Slides 153 through 168 - I/O and sockets.
+
+Tcl's socket model is different enough from Python's that this part is
+probably not a straightforward task. Needs more research.
+
+### Part 8
+
+Tcl doesn't have the issue described and worked around here - any
+command in the call stack in a coroutine context can yield.
+
+### Part 9
+
+The End.
