@@ -95,4 +95,4 @@ aren't going to be straightforward translations. On hold for now.
 
 ### Part 7
 
-
+Substitute `tclosN.tcl` for `pyosN.py`.
