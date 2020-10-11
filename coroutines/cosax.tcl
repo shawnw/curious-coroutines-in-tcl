@@ -3,23 +3,27 @@ package require Tcl 8.6
 package require tdom
 
 # An example showing how to push SAX events into a coroutine target
-
 proc strtrans {text} {
     string map {\n \\n \t \\t} $text
 }
 
-# Use lambdas instead of standalone procs
+proc elementStart {name attrs} {
+    printer [list start $name $attrs]
+}
+
+proc elementEnd {name} {
+    printer [list end $name]
+}
+
+proc characters {text} {
+    printer [list text [strtrans $text]]
+}
+
 xml::parser BusParser \
-    -final true \
-    -elementstartcommand {apply {{target name attrs} {
-        $target [list start $name $attrs]
-    }} printer} \
-    -elementendcommand {apply {{target name} {
-        $target [list end $name]
-    }} printer} \
-    -characterdatacommand {apply {{target text} {
-        $target [list text [strtrans $text]]
-    }} printer}
+    -final 1 \
+    -elementstartcommand elementStart \
+    -elementendcommand elementEnd \
+    -characterdatacommand characters
 
 coroutine printer apply {{} {
     while 1 {
