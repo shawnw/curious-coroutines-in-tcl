@@ -1,6 +1,7 @@
 #!/usr/bin/env tclsh
 package require Tcl 8.6
 package require TclOO
+package require coroutine
 
 # ------------------------------------------------------------
 # tclos5.tcl  -  The TCL Operating System
@@ -177,8 +178,7 @@ oo::class create KillTask {
 # ------------------------------------------------------------
 
 proc foo {} {
-    variable counter
-    coroutine foo[incr counter] apply {{} {
+    coroutine::util create apply {{} {
         yield [info coroutine]
         set mytid [yield [GetTid new]]
         while 1 {

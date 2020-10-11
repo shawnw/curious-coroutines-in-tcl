@@ -1,5 +1,6 @@
 #!/usr/bin/env tclsh
 package require Tcl 8.6
+package require coroutine
 
 # A simple example showing how to hook up a pipeline with coroutines.
 # To run this, you will need a log file. Run the program logsim.py in
@@ -39,9 +40,9 @@ proc grep {pattern target} {
 # A sink.  A coroutine that receives data.
 
 # Compare to the `printer` coroutine in cofollow.tcl
+# This time, use `coroutine::util create` to generate a name
 proc printer {} {
-    variable counter
-    coroutine printer[incr counter] apply {{} {
+    coroutine::util create apply {{} {
         for {set line [yield [info coroutine]]} {1} {set line [yield]} {
             puts $line
         }

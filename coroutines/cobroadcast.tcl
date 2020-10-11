@@ -1,5 +1,6 @@
 #!/usr/bin/env tclsh
 package require Tcl 8.6
+package require coroutine
 
 # An example of broadcasting a data stream onto multiple coroutine
 # targets.
@@ -20,8 +21,7 @@ proc follow {thefile target} {
 
 # A filter
 proc grep {pattern target} {
-    variable counter
-    coroutine grep[incr counter] apply {{pattern target} {
+    coroutine::util create apply {{pattern target} {
         for {set line [yield [info coroutine]]} {1} {set line [yield]} {
             if {[string match $pattern $line]} {
                 $target $line
@@ -32,8 +32,7 @@ proc grep {pattern target} {
 
 # A sink.  A coroutine that receives data.
 proc printer {} {
-    variable counter
-    coroutine printer[incr counter] apply {{} {
+    coroutine::util create apply {{} {
         for {set line [yield [info coroutine]]} {1} {set line [yield]} {
             puts $line
         }
@@ -42,8 +41,7 @@ proc printer {} {
 
 # Broasdcast a stream onto multiple targets
 proc broadcast {targets} {
-    variable counter
-    coroutine broadcast[incr counter] apply {{targets} {
+    coroutine::util create apply {{targets} {
         for {set item [yield [info coroutine]]} {1} {set item [yield]} {
             foreach target $targets {
                 $target $item

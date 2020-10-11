@@ -1,6 +1,7 @@
 #!/usr/bin/env tclsh
 package require Tcl 8.6
 package require TclOO
+package require coroutine
 
 # ------------------------------------------------------------
 # tclos6.tcl  -  The TCL Operating System
@@ -218,8 +219,7 @@ oo::class create WaitTask {
 # ------------------------------------------------------------
 
 proc foo {} {
-    variable counter
-    coroutine foo[incr counter] apply {{} {
+    coroutine::util create apply {{} {
         yield [info coroutine]
         for {set i 1} {$i <= 5} {incr i} {
             puts "I'm foo"
@@ -228,18 +228,15 @@ proc foo {} {
     }}
 }
 
-proc main {} {
-    variable counter
-    coroutine main[incr counter] apply {{} {
-        yield [info coroutine]
-        set childtask [NewTask new [foo]]
-        set child [yield $childtask]
-        puts "Waiting for child $child"
-        yield [WaitTask new $child]
-        puts "Child done"
-    }}
-}
+coroutine main apply {{} {
+    yield
+    set childtask [NewTask new [foo]]
+    set child [yield $childtask]
+    puts "Waiting for child $child"
+    yield [WaitTask new $child]
+    puts "Child done"
+}}
 
 Scheduler create sched
-sched add [main]
+sched add main
 sched mainloop

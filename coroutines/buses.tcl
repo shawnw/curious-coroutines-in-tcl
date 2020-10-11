@@ -1,10 +1,10 @@
 #!/usr/bin/env tclsh
 package require Tcl 8.6
 package require tdom
+package require coroutine
 
 proc buses_to_dicts {target} {
-    variable counter
-    coroutine buses_to_dicts[incr counter] apply {{target} {
+    coroutine::util create apply {{target} {
         for {lassign [yield [info coroutine]] event value} \
             {1} \
             {lassign [yield] event value} {
@@ -33,8 +33,7 @@ proc buses_to_dicts {target} {
 }
 
 proc filter_on_field {fieldname value target} {
-    variable counter
-    coroutine filter_on_field[incr counter] apply {{fieldname value target} {
+    coroutine::util create apply {{fieldname value target} {
         for {set d [yield [info coroutine]]} {1} {set d [yield]} {
             if {[dict get $d $fieldname] eq $value} {
                 $target $d
