@@ -84,22 +84,26 @@ oo::class create Scheduler {
 #                      === Example ===
 # ------------------------------------------------------------
 
-# Two tasks
-coroutine foo apply {{} {
-    while 1 {
-        yield
-        puts "I'm foo"
-    }
-}}
+if {[info exists ::argv0]
+    && [string equal $::argv0 [info script]]} {
+    # Two tasks
+    coroutine foo apply {{} {
+        while 1 {
+            yield
+            puts "I'm foo"
+        }
+    }}
 
-coroutine bar apply {{} {
-    while 1 {
-        yield
-        puts "I'm bar"
-    }
-}}
+    coroutine bar apply {{} {
+        while 1 {
+            yield
+            puts "I'm bar"
+        }
+    }}
 
-Scheduler create sched
-sched add foo
-sched add bar
-sched mainloop
+    Scheduler create sched
+    sched add foo
+    sched add bar
+    sched mainloop
+}
+
