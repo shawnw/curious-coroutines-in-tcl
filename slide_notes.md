@@ -85,3 +85,9 @@ Not going to bother with a C version right now.
 There are other tcl XML parsers, but tDOM is the fastest one in my tests.
 
 ### Part 4
+
+Python threads and tcl threads have very different models; these
+aren't going to be straightforward translations. On hold for now.
+
+### Part 5
+
