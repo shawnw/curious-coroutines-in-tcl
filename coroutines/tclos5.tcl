@@ -100,6 +100,7 @@ oo::class create Scheduler {
                     $result settask $task
                     $result setsched [self object]
                     $result handle
+                    $result destroy
                 } else {
                     my schedule $task
                 }
