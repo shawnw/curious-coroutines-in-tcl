@@ -28,9 +28,9 @@ oo::class create Static {
 # This object encapsulates a running task.
 oo::class create Task {
     mixin Static
+    variable sendval target tid
     
     constructor {target_} {
-        my variable target sendval tid
         my static taskid
         set tid [incr taskid]
         set target $target_
@@ -39,12 +39,10 @@ oo::class create Task {
     
     # Run a task until it hits the next yield statement
     method run {} {
-        my variable target sendval
         $target $sendval
     }
     
     method gettid {} {
-        my variable tid
         return $tid
     }
 }
@@ -53,14 +51,14 @@ oo::class create Task {
 #                      === Scheduler ===
 # ------------------------------------------------------------
 oo::class create Scheduler {
+    variable ready taskmap
+
     constructor {} {
-        my variable ready taskmap
         set ready [list]
         set taskmap [dict create]
     }
     
     method add {target} { ;# Called new in pyos3.py
-        my variable taskmap
         set newtask [Task new $target]
         set tid [$newtask gettid]
         dict set taskmap $tid $newtask
@@ -69,7 +67,6 @@ oo::class create Scheduler {
     }
 
     method exit {task} {
-        my variable taskmap
         set tid [$task gettid]
         puts "Task $tid terminated"
         dict unset taskmap $tid
@@ -77,12 +74,10 @@ oo::class create Scheduler {
     }
     
     method schedule {task} {
-        my variable ready
         lappend ready $task
     }
     
     method mainloop {} {
-        my variable ready taskmap
         while {[dict size $taskmap] > 0} {
             set ready [lassign $ready task]
             try {
@@ -119,5 +114,3 @@ Scheduler create sched
 sched add foo
 sched add bar
 sched mainloop
-
-

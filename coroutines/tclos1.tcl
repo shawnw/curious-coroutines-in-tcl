@@ -8,7 +8,6 @@ package require TclOO
 # Step 1: Tasks
 # ------------------------------------------------------------
 
-
 # From https://wiki.tcl-lang.org/page/TclOO+Tricks
 oo::class create Static {
     method static {args} {
@@ -25,16 +24,17 @@ oo::class create Static {
 # This object encapsulates a running task.
 oo::class create Task {
     mixin Static
+    variable sendval target
+
     constructor {target_} {
-        my variable target sendval
         my static taskid
         incr taskid
         set target $target_
         set sendval ""
     }
+
     # Run a task until it hits the next yield statement
     method run {} {
-        my variable target sendval
         $target $sendval
     }
 }

@@ -4,13 +4,12 @@ package require TclOO
 
 # An object
 oo::class create GrepHandler {
+    variable pattern target
     constructor {pattern_ target_} {
-        my variable pattern target
         set pattern $pattern_
         set target $target_
     }
     method send {line} {
-        my variable pattern target
         if {[string match $pattern $line]} {
             $target $line
         }
