@@ -65,3 +65,23 @@ run under Python 3.
 #### Slide 21 - A Pipeline Example
 
 See `pipeline.tcl` for the tcl code.
+
+### Part 2
+
+### Part 3
+
+##### Slides 69 through 71
+
+The earlier Python XML programs use an OO interface; these use a
+lower-level one that mimics what tDOM provides. So refer to the
+previous tcl programs.
+
+#### Slide 72 - Going Lower
+
+Not going to bother with a C version right now.
+
+#### Slide 74 - Interlude
+
+There are other tcl XML parsers, but tDOM is the fastest one in my tests.
+
+### Part 4
