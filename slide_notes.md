@@ -91,3 +91,8 @@ aren't going to be straightforward translations. On hold for now.
 
 ### Part 5
 
+### Part 6
+
+### Part 7
+
+
