@@ -9,6 +9,7 @@ package require generator
 source follow.tcl
 
 generator define grep {pattern linesgenerator} {
+    generator finally generator destroy $linesgenerator
     generator foreach line $linesgenerator {
         if {[string match $pattern $line]} {
             generator yield $line
@@ -16,10 +17,8 @@ generator define grep {pattern linesgenerator} {
     }
 }
 
-if {[string match *pipeline.tcl $argv0]} {
-    # Set up a processing pipeline : tail -f | grep python
-    set logfile [open access-log]
-    generator foreach line [grep *python* [follow $logfile]] {
-        puts $line
-    }
+# Set up a processing pipeline : tail -f | grep python
+set logfile [open access-log]
+generator foreach line [grep *python* [follow $logfile]] {
+    puts $line
 }

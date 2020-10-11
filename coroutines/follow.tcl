@@ -21,7 +21,8 @@ generator define follow {thefile} {
     }
 }
 
-if {[string match *follow.tcl $argv0]} {
+if {[info exists ::argv0]
+    && [string equal $::argv0 [info script]]} {
     # Example use
     set logfile [open access-log]
     generator foreach line [follow $logfile] {
