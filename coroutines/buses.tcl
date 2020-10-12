@@ -51,10 +51,6 @@ coroutine bus_locations apply {{} {
     }
 }}
 
-set target [buses_to_dicts \
-                [filter_on_field route 22 \
-                     [filter_on_field direction "North Bound" bus_locations]]]
-
 # Using procs is much faster than using lambdas, so we'll stick with them.
 proc startElement {name attrs} {
     variable target
@@ -66,7 +62,7 @@ proc endElement {name} {
 }
 proc characters {text} {
     variable target
-    $target [list text $text]
+    $target [list text [string map {\n \\n \t \\t} $text]]
 }
 
 xml::parser BusParser \
@@ -75,4 +71,10 @@ xml::parser BusParser \
     -elementendcommand endElement \
     -characterdatacommand characters
 
-BusParser parsefile allroutes.xml
+if {[info exists ::argv0] &&    
+    [string equal $::argv0 [info script]]} {
+    set target [buses_to_dicts \
+                    [filter_on_field route 22 \
+                         [filter_on_field direction "North Bound" bus_locations]]]
+    BusParser parsefile allroutes.xml
+}

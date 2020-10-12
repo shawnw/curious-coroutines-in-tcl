@@ -87,7 +87,17 @@ There are other tcl XML parsers, but tDOM is the fastest one in my tests.
 ### Part 4
 
 Python threads and tcl threads have very different models; these
-aren't going to be straightforward translations. On hold for now.
+aren't going to be straightforward translations. Leave that part on
+hold for now.
+
+#### Slides 86 through 87 - A Subprocess Target
+
+`coprocess.tcl` requires [TclX]. It'd be nice if core Tcl had `wait`.
+
+Instead of pickling like the Python version, just be lazy and take
+advantage of Everything Is A String to send data over the pipe.
+
+[TclX]: https://tclx.sourceforge.net/
 
 ### Part 5
 
