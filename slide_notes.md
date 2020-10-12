@@ -117,6 +117,11 @@ probably not a straightforward task. Needs more research.
 Tcl doesn't have the issue described and worked around here - any
 command in the call stack in a coroutine context can yield.
 
+#### Slides 173 through 175 - Coroutine Trampoling
+
+`trampoline.tcl` is an example using `yieldto` to transfer control to
+another subroutine that itself returns a new coroutine.
+
 ### Part 9
 
 The End.
