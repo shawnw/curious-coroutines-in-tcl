@@ -182,7 +182,21 @@ versions use `TclOO` a lot.
 
 ### Part 3
 
-##### Slides 69 through 71
+#### Slide 58 - Minimal SAX Example
+
+See `basicsax.tcl`.
+
+Todo: See if there's a Pythonesque OO wrapper for tDOM's SAX interface.
+
+#### Slide 60 - From SAX to Coroutines
+
+See `cosax.tcl`.
+
+#### Slide 63 - Buses To Dictionaries
+
+See `buses.tcl`.
+
+#### Slides 69 through 71
 
 The earlier Python XML programs use an OO interface; these use a
 lower-level one that mimics what tDOM provides. So refer to the
