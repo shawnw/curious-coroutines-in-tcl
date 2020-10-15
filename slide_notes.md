@@ -92,10 +92,9 @@ hold for now.
 
 #### Slides 86 through 87 - A Subprocess Target
 
-`coprocess.tcl` requires [TclX]. It'd be nice if core Tcl had `wait`.
-
 Instead of pickling like the Python version, just be lazy and take
-advantage of Everything Is A String to send data over the pipe.
+advantage of Everything Is A String to send data over the pipe to
+`busproc.tcl`.
 
 [TclX]: https://tclx.sourceforge.net/
 
