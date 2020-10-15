@@ -139,6 +139,47 @@ See `bogus.tcl`.
 
 ### Part 2
 
+#### Slide 38 - An Example
+
+See `cofollow.tcl`.
+
+I think this is the first example that, instead of using a
+freestanding proc for the coroutine, uses a lambda expression -
+
+    coroutine foo apply {{} {code here}}
+    
+This is handy for small routines that are only used in a coroutine,
+allowing you to define them at point of use.
+
+#### Slide 42 - A Filter Example
+
+See `copipe.tcl`.
+
+This one uses another style - a proc that returns a coroutine context
+name. This can result in cleaner code at point of coroutine creation -
+looks like a normal command call, without having to wrap it in a
+`coroutine` at point of use. I use this style a lot in the subsequent
+examples.
+
+#### Slides 44 through 46 - Example: Broadcasting
+
+See `cobroadcast.tcl` and `cobroadcast2.tcl`.
+
+#### Slide 48 - A Digression
+
+Beazley finally got his wish in python 3 a while back. I understand
+there was much flogging from people who didn't like the new syntax.
+
+#### Slides 49 through 52 - Coroutines and Objects
+
+See `benchmark.tcl`.
+
+Coroutine calls are faster than method calls in tcl too.
+
+Since most of the example programs are straightforward ports of the
+original Python code, and PYthon uses objects a lot, many of the tcl
+versions use `TclOO` a lot.
+
 ### Part 3
 
 ##### Slides 69 through 71

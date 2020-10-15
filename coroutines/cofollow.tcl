@@ -11,12 +11,14 @@ package require Tcl 8.6
 proc follow {thefile target} {
     seek $thefile 0 end
     while 1 {
-        set len [gets $thefile line]
-        if {$len < 0} {
+        if {[gets $thefile line] >= 0} {
+            $target $line
+        } elseif {[eof $thefile]} {
             after 100
             continue
+        } else {
+            error "gets returned an error"
         }
-        $target $line
     }
 }
 
