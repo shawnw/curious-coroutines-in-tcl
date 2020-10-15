@@ -14,13 +14,15 @@ ones.
 The slides
 ----------
 
+### Introduction
+
 #### Slide 3 - Requirements
 
 Unlike the original, the tcl port has some non-core dependencies:
 
 [tcllib] for the [generator] package, and [tDOM] for XML parsing. If
 your OS's tcl distribution splits threads into a separate package
-(Like Ubuntu), you'll want that too.
+(Like Ubuntu), you'll eventually want that too.
 
 
 Filenames will be `foo.tcl` instead of `foo.py`. They live in the
@@ -50,11 +52,15 @@ your own benchmarks to get more accurate numbers for your systems!
 
 ### Part 1
 
+All the generator examples use the [generator] package from
+[tcllib]. Instead of just a plain `yield`, generators created using
+this library have to call `generator yield`. When we get into using
+coroutines directly, plain `yield` will come into play.
+
 #### Slides 16 through 19 - Generators
 
 See `countdown.tcl` for the tcl code. `generator foreach`, much like
-Python's `in`, hides all the details about having to repeatedly invoke
-the generator to get new values.
+Python's `in`, hides all the details.
 
 #### Slide 20 - A Practical Example
 
@@ -65,6 +71,71 @@ run under Python 3.
 #### Slide 21 - A Pipeline Example
 
 See `pipeline.tcl` for the tcl code.
+
+#### Slide 23 - Yield as an Expression
+
+Now we start getting to coroutines proper. Python `line = (yield)` is
+tcl `set line [yield]`.
+
+#### Slide 24 - Coroutines
+
+Tcl coroutines are created by the
+[`coroutine`](https://www.tcl.tk/man/tcl8.6/TclCmd/coroutine.htm)
+command.
+
+In python, a coroutine is an object created by invoking a function
+that uses `yield`. In tcl, a coroutine is given a name (The
+*coroutinne context) by the first argument to `coroutine` and invoked
+by treating that name like a command. Since a lot of the time you
+don't know how many coroutines executing a particular routine you'll
+have until runtime, it's common practice to dynamically generate a
+name and yield that name as the very first thing, storing it in a
+variable, instead of using some hardcoded name like you would a normal
+command. The [coroutine] package from [tcllib] makes this trivial with
+`coroutine::util create ...`, and many of the example programs will
+use it.
+
+[coroutine]: https://core.tcl-lang.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/coroutine/tcllib_coroutine.md
+
+#### Slides 25 through 27
+
+Unlike Python, where a coroutine doesn't execute until `next()` or
+`send()` is called on it, a coroutine in tcl starts executing at once,
+and the `coroutine` command returns the first `yield`ed value. There
+is no priming like the slides talk about.
+
+#### Slides 28 through 29
+
+Tcl coroutines can be closed by renaming the coroutine context name to
+an empty string:
+
+    rename $coro ""
+    
+Further attempts to call that coroutine will then raise the error `TCL
+LOOKUP COMMAND name`, which can be trapped by a `try`. The coroutine
+itself immediately exits; the python example of the coroutine itself
+catching a `GeneratorExit` exception doesn't apply.
+
+They can also end via the currently executing command in the context
+returning normally instead of yielding. They are not cleaned up
+automatically - many of the examples to come do no cleanup, leaving
+coroutines sitting around on exit. Long running code probably should
+avoid this. It's much like how you have to manually destroy `TclOO`
+objects. I haven't looked into it yet, but the [defer] package from
+[tcllib] looks useful for automating this in many cases, or using `trace`.
+
+[defer]: https://core.tcl-lang.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/defer/defer.md
+
+#### Slide 30 - Throwing an Exception
+
+The code running in a coroutine can of course call `error` or the
+equivalent using `return`, but I don't know if it's possible for
+something else to force it to do so like the Python `throw()`
+method. Maybe with some `uplevel` trickery?
+
+#### Slide 32 - A Bogus Example
+
+See `bogus.tcl`.
 
 ### Part 2
 
