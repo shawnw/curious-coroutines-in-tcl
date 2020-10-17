@@ -235,8 +235,12 @@ Pretty much everything in here applies to tcl coroutines.
 This section builds up a coroutine-based task scheduler, eventually
 adding non-blocking I/O, which is very hard to do in tcl without
 bringing the event loop into play. Luckily, it's easy to mix that with
-the schedule being developed here - on a readable or writable event,
-schedule the appropriate task to be run.
+the scheduler being developed here - on a one-shot readable or
+writable event, schedule the appropriate task to be run. (The `TclX`
+extension provides a `select` interface; with that you could use the
+example same appropach as the python versions instead of using the
+event loop; consider providing one of the programs written in that
+style as an example?)
 
 The python versions (`pyos2.py` through `pyos8.py`) use a simple while
 loop to run through the queue of tasks. The tcl versions (`tclos2.tcl`
@@ -253,6 +257,13 @@ command in the call stack in a coroutine context can yield.
 
 `trampoline.tcl` is an example using `yieldto` to transfer control to
 another subroutine that itself returns a new coroutine.
+
+#### Slides 176 through 183 - An Implementation
+
+That's overkill for the purpose of `tclos8.tcl` and `echoserver.tcl`,
+though, which are much simpler than `pyos8.py` - there were no changes
+made to the Task and Scheduler classes to add support for functions
+that themselves yield back to the scheduler when called from a task.
 
 ### Part 9
 
