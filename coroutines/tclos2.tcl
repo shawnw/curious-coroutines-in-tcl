@@ -8,7 +8,6 @@ package require TclOO
 # Step 2: A Scheduler
 # ------------------------------------------------------------
 
-
 # ------------------------------------------------------------
 #                       === Tasks ===
 # ------------------------------------------------------------
@@ -29,24 +28,35 @@ oo::class create Static {
 oo::class create Task {
     mixin Static
     variable sendval target tid
-    
+
     constructor {target_} {
         my static taskid
         set tid [incr taskid]
         set target $target_
         set sendval ""
     }
-    
+
+    destructor {
+        if {[llength [info commands $target]]} {
+            rename $target ""
+        }
+    }
+
     # Run a task until it hits the next yield statement
     method run {} {
         $target $sendval
     }
-    
+
     method gettid {} {
         return $tid
     }
 }
 
+# ------------------------------------------------------------
+#                      === Scheduler ===
+# ------------------------------------------------------------
+
+# Thin wrapper over the event loop
 oo::class create Scheduler {
     variable ready taskmap
 
@@ -54,7 +64,13 @@ oo::class create Scheduler {
         set ready [list]
         set taskmap [dict create]
     }
-    
+
+    destructor {
+        dict for {tid task} $taskmap {
+            $task destroy
+        }
+    }
+
     method add {target} { ;# Called new in pyos2.py
         set newtask [Task new $target]
         set tid [$newtask gettid]
@@ -62,17 +78,31 @@ oo::class create Scheduler {
         my schedule $newtask
         return $tid
     }
-    
+
+    # Add a task to the list of ones queued to run
     method schedule {task} {
         lappend ready $task
     }
-    
-    method mainloop {} {
-        while {[dict size $taskmap] > 0} {
-            set ready [lassign $ready task]
-            set result [$task run]
-            my schedule $task
+
+    # Run a single ready task in a loop
+    method runtask {} {
+        if {[llength $ready] > 0} {
+            set ready [lassign $ready nexttask]
+            $nexttask run
+            my schedule $nexttask
         }
+        if {[dict size $taskmap] > 0} {
+            after idle [self object] runtask
+        } else {
+            global forever
+            set forever done
+        }
+    }
+
+    method mainloop {} {
+        global forever
+        after idle [self object] runtask
+        vwait forever
     }
 }
 
@@ -101,5 +131,5 @@ if {[info exists ::argv0]
     sched add foo
     sched add bar
     sched mainloop
+    sched destroy
 }
-
