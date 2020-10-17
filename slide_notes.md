@@ -226,16 +226,23 @@ advantage of Everything Is A String to send data over the pipe to
 
 ### Part 5
 
+Pretty much everything in here applies to tcl coroutines.
+
 ### Part 6
 
 ### Part 7
 
-Substitute `tclosN.tcl` for `pyosN.py`.
+This section builds up a coroutine-based task scheduler, eventually
+adding non-blocking I/O, which is very hard to do in tcl without
+bringing the event loop into play. Luckily, it's easy to mix that with
+the schedule being developed here - on a readable or writable event,
+schedule the appropriate task to be run.
 
-#### Slides 153 through 168 - I/O and sockets.
-
-Tcl's socket model is different enough from Python's that this part is
-probably not a straightforward task. Needs more research.
+The python versions (`pyos2.py` through `pyos8.py`) use a simple while
+loop to run through the queue of tasks. The tcl versions (`tclos2.tcl`
+through `tclos7.tcl`) use the tcl event loop, with each task being run
+by a method that's queued via `after idle`, runs a single task, and
+then queues itself up again if there's anything pending to run.
 
 ### Part 8
 
