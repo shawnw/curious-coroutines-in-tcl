@@ -29,19 +29,25 @@ oo::class create Static {
 oo::class create Task {
     mixin Static
     variable sendval target tid
-    
+
     constructor {target_} {
         my static taskid
         set tid [incr taskid]
         set target $target_
         set sendval ""
     }
-    
+
+    destructor {
+        if {[llength [info commands $target]]} {
+            rename $target ""
+        }
+    }
+
     # Run a task until it hits the next yield statement
     method run {} {
         $target $sendval
     }
-    
+
     method gettid {} {
         return $tid
     }
@@ -49,7 +55,7 @@ oo::class create Task {
     method gettarget {} {
         return $target
     }
-    
+
     method setsendval {sendval_} {
         set sendval $sendval_
     }
@@ -58,14 +64,23 @@ oo::class create Task {
 # ------------------------------------------------------------
 #                      === Scheduler ===
 # ------------------------------------------------------------
+
+# Thin wrapper over the event loop
 oo::class create Scheduler {
     variable ready taskmap
+
     constructor {} {
         set ready [list]
         set taskmap [dict create]
     }
-    
-    method add {target} { ;# Called new in pyos5.py
+
+    destructor {
+        dict for {tid task} $taskmap {
+            $task destroy
+        }
+    }
+
+    method add {target} { ;# Called new in pyos2.py
         set newtask [Task new $target]
         set tid [$newtask gettid]
         dict set taskmap $tid $newtask
@@ -80,20 +95,22 @@ oo::class create Scheduler {
             return ""
         }
     }
-    
+
     method exit {task} {
         set tid [$task gettid]
         puts "Task $tid terminated"
         dict unset taskmap $tid
         $task destroy
     }
-    
+
+    # Add a task to the list of ones queued to run
     method schedule {task} {
         lappend ready $task
     }
-    
-    method mainloop {} {
-        while {[dict size $taskmap] > 0} {
+
+    # Run a single ready task in a loop
+    method runtask {} {
+        if {[llength $ready] > 0} {
             set ready [lassign $ready task]
             try {
                 set result [$task run]
@@ -109,6 +126,19 @@ oo::class create Scheduler {
                 my exit $task
             }
         }
+        if {[dict size $taskmap] > 0} {
+            after idle [self object] runtask
+        } else {
+            # Exit if there are no tasks running
+            global done
+            set done done
+        }
+    }
+
+    method mainloop {} {
+        global done
+        after idle [self object] runtask
+        vwait done
     }
 }
 
@@ -134,7 +164,7 @@ oo::class create GetTid {
         $task setsendval [$task gettid]
         $sched schedule $task
     }
-}   
+}
 
 # Create a new task
 oo::class create NewTask {
@@ -201,5 +231,4 @@ coroutine main apply {{} {
 Scheduler create sched
 sched add main
 sched mainloop
-
-
+sched destroy
