@@ -8,7 +8,7 @@ package require coroutine
 # A data source. This is not a coroutine, but it sends data into one
 # (target)
 proc follow {thefile target} {
-    seek $thefile 0 end    
+    seek $thefile 0 end
     while 1 {
         set len [gets $thefile line]
         if {$len < 0} {

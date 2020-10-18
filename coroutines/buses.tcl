@@ -71,7 +71,7 @@ xml::parser BusParser \
     -elementendcommand endElement \
     -characterdatacommand characters
 
-if {[info exists ::argv0] &&    
+if {[info exists ::argv0] &&
     [string equal $::argv0 [info script]]} {
     set target [buses_to_dicts \
                     [filter_on_field route 22 \
