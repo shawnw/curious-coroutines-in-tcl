@@ -4,9 +4,9 @@ package require TclOO
 package require coroutine
 
 # ------------------------------------------------------------
-# tclos6.tcl  -  The TCL Operating System
+# tclos8.tcl  -  The TCL Operating System
 #
-# Added support for task waiting
+# Step 7 : Suppoert for subroutines
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
@@ -61,16 +61,13 @@ oo::class create Task {
     }
 }
 
-# ------------------------------------------------------------
-#                      === Scheduler ===
-# ------------------------------------------------------------
-
 # Thin wrapper over the event loop
 oo::class create Scheduler {
-    variable exit_waiting ready taskmap
+    variable exit_waiting ready sockets_listening taskmap
 
     constructor {} {
         set exit_waiting [dict create]
+        set sockets_listening 0
         set ready [list]
         set taskmap [dict create]
     }
@@ -87,6 +84,14 @@ oo::class create Scheduler {
         dict set taskmap $tid $newtask
         my schedule $newtask
         return $tid
+    }
+
+    method listening {yesno} {
+        if {$yesno} {
+            incr sockets_listening
+        } else {
+            incr sockets_listening -1
+        }
     }
 
     method gettask {tid} {
@@ -119,6 +124,38 @@ oo::class create Scheduler {
         }
     }
 
+    # I/O waiting
+
+    # Instead of adding file descriptors to lists and periodically
+    # using select (Which tcl doesn't have), we instead add the
+    # relevant readable or writable event callback to the event loop.
+
+    method ioread {task ch} {
+        # Channel's become readable; queue the task
+        chan event $ch readable {}
+        incr sockets_listening -1
+        my schedule $task
+    }
+
+    method waitforread {task ch} {
+        # Add readable event.
+        chan event $ch readable [list [self object] ioread $task $ch]
+        incr sockets_listening
+    }
+
+    method iowrite {task ch} {
+        # Channel's become writeable; queue the task
+        chan event $ch writable {}
+        incr sockets_listening -1
+        my schedule $task
+    }
+
+    method waitforwrite {task ch} {
+        # Add writable event.
+        chan event $ch writable [list [self object] iowrite $task $ch]
+        incr sockets_listening
+    }
+
     # Add a task to the list of ones queued to run
     method schedule {task} {
         lappend ready $task
@@ -142,10 +179,14 @@ oo::class create Scheduler {
                 my exit $task
             }
         }
-        if {[dict size $taskmap] > 0} {
+        if {[llength $ready] > 0} {
+            # Work to be done!
             after idle [self object] runtask
+        } elseif {[dict size $taskmap] > 0 || $sockets_listening > 0} {
+            # Registered tasks but nothing currently pending. Sleep a bit.
+            after 50 [self object] runtask
         } else {
-            # Exit if there are no tasks running
+            # No tasks registered, no sockets waiting for events. Exit.
             global done
             set done done
         }
@@ -238,30 +279,50 @@ oo::class create WaitTask {
     }
 }
 
+# Wait for reading
+oo::class create ReadWait {
+    superclass SystemCall
+    variable sched task ch
+    constructor {ch_} {
+        set ch $ch_
+    }
+    method handle {} {
+        $sched waitforread $task $ch
+    }
+}
+
+# Wait for writing
+oo::class create WriteWait {
+    superclass SystemCall
+    variable sched task ch
+    constructor {ch_} {
+        set ch $ch_
+    }
+    method handle {} {
+        $sched waitforwrite $task $ch
+    }
+}
+
+# ------------------------------------------------------------
+#                      === Library Functions ===
+# ------------------------------------------------------------
+
+namespace eval tclos {
+    proc send {ch buffer} {
+        yield [WriteWait new $ch]
+        chan puts -nonewline $ch $buffer
+    }
+
+    proc recv {ch maxbytes} {
+        yield [ReadWait new $ch]
+        chan read $ch $maxbytes
+    }
+    namespace export send recv
+    namespace ensemble create
+}
+
 # ------------------------------------------------------------
 #                      === Example ===
 # ------------------------------------------------------------
 
-proc foo {} {
-    coroutine::util create apply {{} {
-        yield [info coroutine]
-        for {set i 1} {$i <= 5} {incr i} {
-            puts "I'm foo"
-            yield
-        }
-    }}
-}
-
-coroutine main apply {{} {
-    yield
-    set childtask [NewTask new [foo]]
-    set child [yield $childtask]
-    puts "Waiting for child $child"
-    yield [WaitTask new $child]
-    puts "Child done"
-}}
-
-Scheduler create sched
-sched add main
-sched mainloop
-sched destroy
+# Run the script echoserver.tcl to see this work
