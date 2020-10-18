@@ -20,16 +20,15 @@ The slides
 
 Unlike the original, the tcl port has some non-core dependencies:
 
-[tcllib] for the [generator] package, and [tDOM] for XML parsing. If
-your OS's tcl distribution splits threads into a separate package
-(Like Ubuntu), you'll eventually want that too.
-
+[tcllib] for the [generator] and [coroutine] packages, and [tDOM] for
+XML parsing.
 
 Filenames will be `foo.tcl` instead of `foo.py`. They live in the
 `coroutines/` subdirectory.
 
 [tcllib]: https://www.tcl.tk/software/tcllib/
 [generator]: https://core.tcl-lang.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/generator/generator.md
+[coroutine]: https://core.tcl-lang.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/coroutine/tcllib_coroutine.md
 [tDOM]: http://tdom.org/index.html/dir?ci=release
 
 #### Slide 6 - About Me
@@ -94,8 +93,6 @@ variable, instead of using some hardcoded name like you would a normal
 command. The [coroutine] package from [tcllib] makes this trivial with
 `coroutine::util create ...`, and many of the example programs will
 use it.
-
-[coroutine]: https://core.tcl-lang.org/tcllib/doc/trunk/embedded/md/tcllib/files/modules/coroutine/tcllib_coroutine.md
 
 #### Slides 25 through 27
 
@@ -222,8 +219,6 @@ Instead of pickling like the Python version, just be lazy and take
 advantage of Everything Is A String to send data over the pipe to
 `busproc.tcl`.
 
-[TclX]: https://tclx.sourceforge.net/
-
 ### Part 5
 
 Pretty much everything in here applies to tcl coroutines.
@@ -236,7 +231,7 @@ This section builds up a coroutine-based task scheduler, eventually
 adding non-blocking I/O, which is very hard to do in tcl without
 bringing the event loop into play. Luckily, it's easy to mix that with
 the scheduler being developed here - on a one-shot readable or
-writable event, schedule the appropriate task to be run. (The `TclX`
+writable event, schedule the appropriate task to be run. (The [TclX]
 extension provides a `select` interface; with that you could use the
 example same appropach as the python versions instead of using the
 event loop; consider providing one of the programs written in that
@@ -247,6 +242,8 @@ loop to run through the queue of tasks. The tcl versions (`tclos2.tcl`
 through `tclos7.tcl`) use the tcl event loop, with each task being run
 by a method that's queued via `after idle`, runs a single task, and
 then queues itself up again if there's anything pending to run.
+
+[TclX]: https://tclx.sourceforge.net/
 
 ### Part 8
 
@@ -266,5 +263,16 @@ made to the Task and Scheduler classes to add support for functions
 that themselves yield back to the scheduler when called from a task.
 
 ### Part 9
+
+The "OS" the last few parts create has potential for expansion (Things
+like task priorities, for example), but is massive overkill for a lot
+of uses. Much of the time simply using corouties as callbacks in the
+event loop will give you the same effect of writing what looks like
+normal serialized code that ends up actually running asynchronously
+with other callbacks mixed in. `blaster.tcl`, the program that spews
+connections at the echo servers, is a example of this.
+
+Conclusion
+----------
 
 The End.
