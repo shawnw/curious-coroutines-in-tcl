@@ -64,9 +64,8 @@ Python's `in`, hides all the details.
 
 #### Slide 20 - A Practical Example
 
-See `follow.tcl` for the tcl code. David's original log file
-simulator, `logsim.py`, is included with minimal changes to make it
-run under Python 3.
+See `follow.tcl` for the tcl code, and `logsim.tcl` to generate a
+random logfile.
 
 #### Slide 21 - A Pipeline Example
 
