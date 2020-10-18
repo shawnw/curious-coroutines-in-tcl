@@ -8,13 +8,10 @@ package require generator
 # reuse.
 source follow.tcl
 
-generator define grep {pattern linesgenerator} {
-    generator finally generator destroy $linesgenerator
-    generator foreach line $linesgenerator {
-        if {[string match $pattern $line]} {
-            generator yield $line
-        }
-    }
+# Adapt a generator into one that only returns elements that match
+# pattern
+proc grep {pattern linesgenerator} {
+    generator filter [list string match $pattern] $linesgenerator
 }
 
 # Set up a processing pipeline : tail -f | grep python
