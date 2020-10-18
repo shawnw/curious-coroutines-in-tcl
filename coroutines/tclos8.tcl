@@ -147,7 +147,7 @@ oo::class create Scheduler {
         # Channel's become writeable; queue the task
         chan event $ch writable {}
         incr sockets_listening -1
-        my schedule $task        
+        my schedule $task
     }
 
     method waitforwrite {task ch} {
