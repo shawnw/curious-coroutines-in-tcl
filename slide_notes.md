@@ -271,10 +271,10 @@ normal serialized code that ends up actually running asynchronously
 with other callbacks mixed in.
 
 `blaster.tcl`, the program that spews connections at the echo servers,
-is a example of this. So is `follow-el.tcl`, which should be compared
-to `follow.tcl` and `cofollow.tcl`. Both of these make use of the
-utility functions in the [coroutine] package that simplify mixing the
-event loop and coroutines.
+is a example of this. So is `follow-el.tcl` (which should be compared
+to `follow.tcl` and `cofollow.tcl`), and `echoserver-el.tcl`. All of
+these make use of the utility functions in the [coroutine] package
+that simplify mixing the event loop and coroutines.
 
 Conclusion
 ----------
