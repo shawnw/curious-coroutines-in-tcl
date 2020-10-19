@@ -57,14 +57,15 @@ proc ::coroutine::util::puts {args} {
         }
     }
     set blocking [::chan configure $ch -blocking]
-    ::chan event $ch writable [info coroutine]
-    yield
-    ::chan event $ch writable {}
     try {
+        ::chan configure $ch -blocking 0
+        ::chan event $ch writable [info coroutine]
+        yield
         ::chan puts {*}$args
-    } on error {result opts} {
-        return -code $result -options $opts
+    } on error {msg opts} {
+        return -options $opts $msg
     } finally {
+        ::chan event $ch writable {}
         ::chan configure $ch -blocking $blocking
     }
 }
@@ -118,9 +119,14 @@ proc blast_messages {host port} {
         puts "Connection [info coroutine] opened socket $s"
         while {[incr count] <= $MAXCOUNT} {
             puts "Sending message $count to socket $s"
-            coroutine::util puts -nonewline $s $MSG
-            set response [coroutine::util read $s $MSGSIZE]
-            puts "Got reply of [string length $response] back from socket $s"
+            try {
+                coroutine::util puts -nonewline $s $MSG
+                set response [coroutine::util read $s $MSGSIZE]
+                puts "Got reply of [string length $response] back from socket $s"
+            } on error {msg opts} {
+                puts stderr "error on socket $s: $msg"
+                break
+            }
         }
         shutdown $s
     }} $host $port
