@@ -51,7 +51,7 @@ proc ::coroutine::util::recv {ch maxlen} {
     set blocking [::chan configure $ch -blocking]
     try {
         ::chan configure $ch -blocking 0
-        if {[::chan pending readable $ch] > 0} {
+        if {[::chan pending input $ch] > 0} {
             return [::chan read $ch $maxlen]
         }
         ::chan event $ch readable [info coroutine]
